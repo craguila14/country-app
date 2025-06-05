@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, linkedSignal } from '@angular/core';
 import { SearchInputComponent } from '../../components/search-input/search-input.component';
 import { CountryListComponent } from '../../components/country-list/country-list.component';
 import { CountryService } from '../../services/country.service';
 import { rxResource } from "@angular/core/rxjs-interop"
 import { of } from 'rxjs'; 
+import { ActivatedRoute, Router } from '@angular/router';
 @Component({
 
     selector: 'by-country-page',
@@ -11,17 +12,30 @@ import { of } from 'rxjs';
     templateUrl: './by-country-page.component.html',
   })
 export class ByCountryPageComponent {
+  
       countryService = inject(CountryService)
-    query = signal('')
+    activatedRoute = inject(ActivatedRoute)
 
-    countryResource = rxResource({
+    router = inject(Router)
+
+    queryParam = this.activatedRoute.snapshot.queryParamMap.get('query') ?? ''
+
+     query = linkedSignal( () => this.queryParam)
+
+      countryResource = rxResource({
         request: () => ({  query: this.query() }),
         loader: ({request}) => {
 
             if(!request.query) return of ([])
+
+            this.router.navigate(['/country/by-country'], {
+                queryParams: { query: request.query }
+            } )
+
             return this.countryService.searchByCountry(request.query)
        
         }
     })
+
 
 }

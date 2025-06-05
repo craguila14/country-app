@@ -52,7 +52,6 @@ export class CountryService {
             .pipe(
                 map((resp) => CountryMapper.mapRestCountryArrayToCountryArray(resp)),
                 tap(countries => this.queryCacheCountry.set(query, countries)),
-                delay(3000),
                 catchError(error => {
                     console.log(error)
                     return throwError(() => new Error(`No se pudo obtener paises con ese query ${query}`))
