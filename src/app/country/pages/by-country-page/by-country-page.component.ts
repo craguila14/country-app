@@ -5,6 +5,7 @@ import { CountryService } from '../../services/country.service';
 import { rxResource } from "@angular/core/rxjs-interop"
 import { of } from 'rxjs'; 
 import { ActivatedRoute, Router } from '@angular/router';
+import {SearchStateService } from '../../services/search-state.service';
 @Component({
 
     selector: 'by-country-page',
@@ -12,15 +13,22 @@ import { ActivatedRoute, Router } from '@angular/router';
     templateUrl: './by-country-page.component.html',
   })
 export class ByCountryPageComponent {
-  
+
       countryService = inject(CountryService)
+
+      searchState = inject(SearchStateService)
     activatedRoute = inject(ActivatedRoute)
 
     router = inject(Router)
 
-    queryParam = this.activatedRoute.snapshot.queryParamMap.get('query') ?? ''
+    query = this.searchState.countryQuery
 
-     query = linkedSignal( () => this.queryParam)
+      constructor() {
+        const param = this.activatedRoute.snapshot.queryParamMap.get('query')
+        if (param) {
+            this.query.set(param)
+        }
+    }
 
       countryResource = rxResource({
         request: () => ({  query: this.query() }),

@@ -5,6 +5,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { CountryService } from '../../services/country.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SearchStateService } from '../../services/search-state.service';
 
 function validateQueryParam(queryParam: string): Region {
 
@@ -29,6 +30,7 @@ function validateQueryParam(queryParam: string): Region {
 export class ByRegionPageComponent {
 
     countryService = inject(CountryService)
+    searchState = inject(SearchStateService)
 
      public regions: Region[] =  [
         'Africa',
@@ -41,11 +43,16 @@ export class ByRegionPageComponent {
 
     activatedRoute = inject(ActivatedRoute)
 
-     queryParam = this.activatedRoute.snapshot.queryParamMap.get('region') ?? ''
+    router = inject(Router)   
+    
+    selectedRegion = this.searchState.regionQuery
 
-     selectedRegion = linkedSignal<Region>(() => validateQueryParam(this.queryParam))  
-
-    router = inject(Router)    
+        constructor() {
+        const param = this.activatedRoute.snapshot.queryParamMap.get('region')
+        if (param) {
+            this.selectedRegion.set(validateQueryParam(param))
+        }
+    }
 
      
       countryResource = rxResource({
